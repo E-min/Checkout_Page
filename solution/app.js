@@ -1,12 +1,13 @@
 const products = [];
 
-function Product(name, imgSrc, price, amount, discount) {
+function Product(name, imgSrc, price, amount, discount, id) {
   this.name = name;
   this.imgSrc = imgSrc;
   this.price = price;
   this._amount = amount;
   this.total = this._amount * this.price;
   this.discount = discount;
+  this.id = id;
  
   Object.defineProperty(this, "amount", {
     get: function () {
@@ -14,35 +15,91 @@ function Product(name, imgSrc, price, amount, discount) {
     },
     set: function (value) {
       this._amount = value;
-      this.total = this._amount * this.price;
+      this.total = (this._amount * this.price).toFixed(2);
     },
   });
 }
 
 // added new products
-products.push(new Product("Antique Clock", "../img/photo3.jpg", 74.99, 0, 12));
-products.push(new Product("Levi Shoes", "../img/photo2.png", 45.99, 0, 18));
-products.push(new Product("Vintage Bag", "../img/photo1.png", 34.99, 0, 18));
+products.push(new Product("Antique Clock", "../img/photo3.jpg", 74.99, 0.00, 12, 111111111));
+products.push(new Product("Levi Shoes", "../img/photo2.png", 45.99, 0, 18, 111111112));
+products.push(new Product("Vintage Bag", "../img/photo1.png", 34.99, 0, 18, 111111113));
 
 const getProductsFromLocalStorage = JSON.parse(localStorage.getItem('products')) || [];
 const cartContainer = document.querySelector('.cart');
 
 
 window.addEventListener('load', () => {
-  products.forEach(product => createProducts(product))
-  
+  products.forEach(product => createProducts(product));
 });
 
 cartContainer.addEventListener('click', (e) => {
-  console.log(e.target);
+  //get subtotal, tax , shipping and total by using DOM for dynamically change their innerText's
+  let subtotal = document.getElementById('subtotal');
+  let tax = document.getElementById('tax');
+  let shipping = document.getElementById('shipping');
+  let total = document.getElementById('total');
+  
+  //calculating final costs
+  const finalCosts = () => {
+   let subtotalValue = 0;
+   let amountOfProductsSelected = 0;  
+   //calculating subtotal by geting sum of all products total's
+   products.forEach((product) => {
+     subtotalValue += +product.total;
+     amountOfProductsSelected += product.amount;
+    });
+    subtotal.innerText = `$${subtotalValue.toFixed(2)}`;
+    
+    //calculating tax multiplying subtotalValue by 0.18
+    taxValue = (subtotalValue * 0.18).toFixed(2)
+    tax.innerText = `$${taxValue}`;
+    
+    let shippingValue = amountOfProductsSelected ? 15 : 0;
+     shipping.innerText = `$${shippingValue}.00`
+    //calculating Total by getting sum of subtotal, tax and shipping costs
+    total.innerText = `$${(+taxValue + subtotalValue + shippingValue).toFixed(2)}`
+  }
+
+  //if statments for buttons 
+  if(e.target.value === 'Remove') {
+      e.target.parentNode.parentNode.parentNode.remove()
+      products.forEach(product => {
+        e.target.closest(`.product`).id == product.id && (product.amount = 0);
+      });
+      finalCosts()
+  } else if (e.target.classList.contains('fa-plus')) {
+      let amountValue = +e.target.previousElementSibling.innerText
+      amountValue += 1;
+      e.target.previousElementSibling.innerText = amountValue;
+      updateProductsByAmount(e, amountValue);
+      finalCosts()
+  } else if (e.target.classList.contains('fa-minus')) {
+      let amountValue = Number(e.target.nextElementSibling.innerText);
+      if (amountValue > 0) {
+         amountValue -= 1;
+         updateProductsByAmount(e, amountValue);
+      }
+      e.target.nextElementSibling.innerText = amountValue;
+      finalCosts()
+   }
+
 });
 
-const createProducts = (product) => {
+const updateProductsByAmount = (e, number) => {
+  products.forEach(product => {
+    e.target.closest(`.product`).id == product.id && (product.amount = number,
+      e.target.parentNode.nextElementSibling.nextElementSibling.innerText = `Total: $${product.total}`
+    )
+  })
+}
 
-  const {name, imgSrc, price, amount, total, discount} = product;
+const createProducts = (product) => {
+  const {name, imgSrc, price, amount, total, discount, id} = product;
   
   const createProduct = document.createElement('div');
   createProduct.setAttribute('class','container product p-3 border rounded-3 my-2');
+  createProduct.setAttribute('id', `${id}`);
   
   const createRow = document.createElement('div');
   createRow.classList.add('row');
@@ -69,7 +126,6 @@ const createProducts = (product) => {
   createPrice.setAttribute('class', 'text-decoration-line-through');
   createPrice.innerText = `$${price}`
 
-
   const createIcons = document.createElement('div');
   createIcons.setAttribute('class', 'border d-flex justify-content-around align-items-center py-1 rounded-2 my-2');
 
@@ -82,7 +138,6 @@ const createProducts = (product) => {
   const createIconPlus = document.createElement('i');
   createIconPlus.setAttribute('class', 'fa-solid fa-plus');
   
-
   const createRemoveButton = document.createElement('input');
   createRemoveButton.setAttribute('type', 'button');
   createRemoveButton.setAttribute('class', 'mt-1');
@@ -90,9 +145,8 @@ const createProducts = (product) => {
   
   const createProductTotal = document.createElement('p');
   createProductTotal.classList.add('mt-1');
-  createProductTotal.innerText = `Product Total: $${total}`
+  createProductTotal.innerText = `Total: $${total}`
 
-  //append
   cartContainer.prepend(createProduct);
   createProduct.appendChild(createRow);
   createRow.appendChild(createColImg);
