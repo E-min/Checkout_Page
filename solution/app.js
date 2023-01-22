@@ -1,5 +1,6 @@
 const products = [];
 
+//constructor function for new products
 function Product(name, imgSrc, price, amount, discount, id) {
   this.name = name;
   this.imgSrc = imgSrc;
@@ -9,6 +10,7 @@ function Product(name, imgSrc, price, amount, discount, id) {
   this.discount = discount;
   this.id = id;
  
+  //function for dynamically calculating 'total' based on 'amount'
   Object.defineProperty(this, "amount", {
     get: function () {
       return this._amount;
@@ -20,14 +22,12 @@ function Product(name, imgSrc, price, amount, discount, id) {
   });
 }
 
-// added new products
+// adding new product using their informations
 products.push(new Product("Antique Clock", "../img/photo3.jpg", 74.99, 0.00, 12, 111111111));
 products.push(new Product("Levi Shoes", "../img/photo2.png", 45.99, 0, 18, 111111112));
 products.push(new Product("Vintage Bag", "../img/photo1.png", 34.99, 0, 18, 111111113));
 
-const getProductsFromLocalStorage = JSON.parse(localStorage.getItem('products')) || [];
 const cartContainer = document.querySelector('.cart');
-
 
 window.addEventListener('load', () => {
   products.forEach(product => createProducts(product));
