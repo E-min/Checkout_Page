@@ -23,9 +23,9 @@ function Product(name, imgSrc, price, amount, discount, id) {
 }
 
 // adding new product using their informations
-products.push(new Product("Antique Clock", "../img/photo3.jpg", 74.99, 0.00, 12, 111111111));
-products.push(new Product("Levi Shoes", "../img/photo2.png", 45.99, 0, 18, 111111112));
-products.push(new Product("Vintage Bag", "../img/photo1.png", 34.99, 0, 18, 111111113));
+products.push(new Product("Antique Clock", "./img/photo3.jpg", 74.99, 0.00, 12, 111111111));
+products.push(new Product("Levi Shoes", "./img/photo2.png", 45.99, 0, 18, 111111112));
+products.push(new Product("Vintage Bag", "./img/photo1.png", 34.99, 0, 18, 111111113));
 
 const cartContainer = document.querySelector('.cart');
 
